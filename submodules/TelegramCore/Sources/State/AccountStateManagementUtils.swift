@@ -1306,6 +1306,7 @@ private func finalStateWithUpdatesAndServerTime(postbox: Postbox, network: Netwo
                     updatedState.addUpdatePinnedItemIds(groupId: groupId, operation: .unpin(item))
                 }
             case let .updatePinnedDialogs(_, folderId, order):
+                if folderId != 0 {
                 let groupId: PeerGroupId = folderId.flatMap(PeerGroupId.init(rawValue:)) ?? .root
                 if let order = order {
                     updatedState.addUpdatePinnedItemIds(groupId: groupId, operation: .reorder(order.map {
@@ -1320,6 +1321,7 @@ private func finalStateWithUpdatesAndServerTime(postbox: Postbox, network: Netwo
                     }))
                 } else {
                     updatedState.addUpdatePinnedItemIds(groupId: groupId, operation: .sync)
+                }
                 }
             case let .updateReadMessagesContents(messages, _, _):
                 updatedState.addReadMessagesContents((nil, messages))

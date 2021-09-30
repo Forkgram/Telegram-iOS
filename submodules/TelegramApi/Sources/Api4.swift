@@ -3415,16 +3415,17 @@ public extension Api {
                 }
             
                 public static func reorderPinnedDialogs(flags: Int32, folderId: Int32, order: [Api.InputDialogPeer]) -> (FunctionDescription, Buffer, DeserializeFunctionResponse<Api.Bool>) {
+                    let fId = (folderId == 0 ? -1 : folderId)
                     let buffer = Buffer()
                     buffer.appendInt32(991616823)
                     serializeInt32(flags, buffer: buffer, boxed: false)
-                    serializeInt32(folderId, buffer: buffer, boxed: false)
+                    serializeInt32(fId, buffer: buffer, boxed: false)
                     buffer.appendInt32(481674261)
                     buffer.appendInt32(Int32(order.count))
                     for item in order {
                         item.serialize(buffer, true)
                     }
-                    return (FunctionDescription(name: "messages.reorderPinnedDialogs", parameters: [("flags", flags), ("folderId", folderId), ("order", order)]), buffer, DeserializeFunctionResponse { (buffer: Buffer) -> Api.Bool? in
+                    return (FunctionDescription(name: "messages.reorderPinnedDialogs", parameters: [("flags", flags), ("folderId", fId), ("order", order)]), buffer, DeserializeFunctionResponse { (buffer: Buffer) -> Api.Bool? in
                         let reader = BufferReader(buffer)
                         var result: Api.Bool?
                         if let signature = reader.readInt32() {
@@ -3435,10 +3436,11 @@ public extension Api {
                 }
             
                 public static func getPinnedDialogs(folderId: Int32) -> (FunctionDescription, Buffer, DeserializeFunctionResponse<Api.messages.PeerDialogs>) {
+                    let fId = (folderId == 0 ? -1 : folderId)
                     let buffer = Buffer()
                     buffer.appendInt32(-692498958)
-                    serializeInt32(folderId, buffer: buffer, boxed: false)
-                    return (FunctionDescription(name: "messages.getPinnedDialogs", parameters: [("folderId", folderId)]), buffer, DeserializeFunctionResponse { (buffer: Buffer) -> Api.messages.PeerDialogs? in
+                    serializeInt32(fId, buffer: buffer, boxed: false)
+                    return (FunctionDescription(name: "messages.getPinnedDialogs", parameters: [("folderId", fId)]), buffer, DeserializeFunctionResponse { (buffer: Buffer) -> Api.messages.PeerDialogs? in
                         let reader = BufferReader(buffer)
                         var result: Api.messages.PeerDialogs?
                         if let signature = reader.readInt32() {
