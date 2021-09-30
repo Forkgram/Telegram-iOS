@@ -504,7 +504,7 @@ public final class ShareController: ViewController {
                 self?.presentingViewController?.dismiss(animated: false, completion: nil)
             })
         }
-        self.controllerNode.share = { [weak self] text, peerIds in
+        self.controllerNode.share = { [weak self] text, peerIds, drop in
             guard let strongSelf = self else {
                 return .complete()
             }

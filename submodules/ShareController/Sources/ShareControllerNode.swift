@@ -59,7 +59,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
     
     var dismiss: ((Bool) -> Void)?
     var cancel: (() -> Void)?
-    var share: ((String, [PeerId]) -> Signal<ShareState, NoError>)?
+    var share: ((String, [PeerId], Bool) -> Signal<ShareState, NoError>)?
     var shareExternal: (() -> Signal<ShareExternalState, NoError>)?
     var switchToAnotherAccount: (() -> Void)?
     var debugAction: (() -> Void)?
@@ -239,7 +239,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         self.cancelButtonNode.addTarget(self, action: #selector(self.cancelButtonPressed), forControlEvents: .touchUpInside)
         
         self.actionButtonNode.addTarget(self, action: #selector(self.actionButtonPressed), forControlEvents: .touchUpInside)
-        self.dropNameButtonNode.addTarget(self, action: #selector(self.actionButtonPressed), forControlEvents: .touchUpInside)
+        self.dropNameButtonNode.addTarget(self, action: #selector(self.actionButtonPressed(_:)), forControlEvents: .touchUpInside)
         
         self.wrappingScrollNode.addSubnode(self.contentBackgroundNode)
         
@@ -548,17 +548,17 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         self.cancel?()
     }
     
-    @objc func actionButtonPressed() {
+    @objc func actionButtonPressed(_ button: ShareActionButtonNode) {
         if self.controllerInteraction!.selectedPeers.isEmpty && self.presetText == nil {
             if let defaultAction = self.defaultAction {
                 defaultAction.action()
             }
         } else {
-            self.send()
+            self.send(drop:(button == dropNameButtonNode))
         }
     }
     
-    func send(peerId: PeerId? = nil) {
+    func send(peerId: PeerId? = nil, drop: Bool = false) {
         if !self.inputFieldNode.text.isEmpty {
             for peer in self.controllerInteraction!.selectedPeers {
                 if let channel = peer.peer as? TelegramChannel, channel.isRestrictedBySlowmode {
@@ -592,7 +592,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
             donateSendMessageIntent(account: context.account, sharedContext: self.sharedContext, intentContext: .share, peerIds: peerIds)
         }
         
-        if let signal = self.share?(self.inputFieldNode.text, peerIds) {
+        if let signal = self.share?(self.inputFieldNode.text, peerIds, drop) {
             var wasDone = false
             let timestamp = CACurrentMediaTime()
             let doneImpl: (Bool) -> Void = { [weak self] shouldDelay in
