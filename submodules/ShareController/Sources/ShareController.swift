@@ -581,8 +581,12 @@ public final class ShareController: ViewController {
                     if !text.isEmpty {
                         messagesToEnqueue.append(.message(text: text, attributes: [], mediaReference: nil, replyToMessageId: nil, localGroupingKey: nil, correlationId: nil))
                     }
+                    var attributes: [MessageAttribute] = []
+                    attributes.append(ForwardOptionsMessageAttribute(
+                        hideNames: drop,
+                        hideCaptions: drop))
                     for message in messages {
-                        messagesToEnqueue.append(.forward(source: message.id, grouping: .auto, attributes: [], correlationId: nil))
+                        messagesToEnqueue.append(.forward(source: message.id, grouping: .auto, attributes: attributes, correlationId: nil))
                     }
                     shareSignals.append(enqueueMessages(account: strongSelf.currentAccount, peerId: peerId, messages: messagesToEnqueue))
                 }
