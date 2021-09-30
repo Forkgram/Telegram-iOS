@@ -2774,7 +2774,7 @@ class ChatMessageBubbleItemNode: ChatMessageItemView, ChatMessagePreviewItemNode
             mosaicStatusNode.removeFromSupernode()
         }
 
-        if needsShareButton {
+        if true/*needsShareButton*/ {
             if strongSelf.shareButtonNode == nil {
                 let shareButtonNode = ChatMessageShareButton()
                 strongSelf.shareButtonNode = shareButtonNode

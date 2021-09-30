@@ -572,7 +572,7 @@ class ChatMessageStickerItemNode: ChatMessageItemView {
             }
             
             var updatedShareButtonNode: ChatMessageShareButton?
-            if needShareButton {
+            if true/*needShareButton*/ {
                 if let currentShareButtonNode = currentShareButtonNode {
                     updatedShareButtonNode = currentShareButtonNode
                 } else {

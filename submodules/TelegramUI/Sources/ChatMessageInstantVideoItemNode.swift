@@ -472,7 +472,7 @@ class ChatMessageInstantVideoItemNode: ChatMessageItemView, UIGestureRecognizerD
             }
             
             var updatedShareButtonNode: ChatMessageShareButton?
-            if needShareButton {
+            if true/*needShareButton*/ {
                 if currentShareButtonNode != nil {
                     updatedShareButtonNode = currentShareButtonNode
                 } else {
