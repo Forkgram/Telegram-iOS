@@ -204,6 +204,7 @@ final class ChatMessageDateHeaderNode: ListViewItemHeaderNode {
         super.didLoad()
         
         self.view.addGestureRecognizer(ListViewTapGestureRecognizer(target: self, action: #selector(self.tapGesture(_:))))
+        self.view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(self.tapGesture(_:))))
     }
     
     func updatePresentationData(_ presentationData: ChatPresentationData, context: AccountContext) {
@@ -307,9 +308,11 @@ final class ChatMessageDateHeaderNode: ListViewItemHeaderNode {
         super.touchesCancelled(touches, with: event)
     }
     
-    @objc func tapGesture(_ recognizer: ListViewTapGestureRecognizer) {
+    @objc func tapGesture(_ recognizer: UIGestureRecognizer) {
         if case .ended = recognizer.state {
-            self.action?(self.localTimestamp)
+            self.action?(recognizer is ListViewTapGestureRecognizer
+                ? self.localTimestamp
+                : -1)
         }
     }
 }

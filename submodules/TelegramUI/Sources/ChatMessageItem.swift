@@ -334,6 +334,9 @@ public final class ChatMessageItem: ListViewItem, CustomStringConvertible {
             let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
             let components = calendar.dateComponents([.year, .month, .day], from: date)
 
+            if (timestamp == -1) {
+                controllerInteraction.navigateToFirstDateMessage(-1)
+            } else
             if let date = calendar.date(from: components) {
                 controllerInteraction.navigateToFirstDateMessage(Int32(date.timeIntervalSince1970))
             }
