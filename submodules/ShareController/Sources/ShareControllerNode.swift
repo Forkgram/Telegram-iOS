@@ -52,6 +52,8 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
     
     private let actionsBackgroundNode: ASImageNode
     private let actionButtonNode: ShareActionButtonNode
+    private let dropNameButtonNode: ShareActionButtonNode
+    private var dropNameShowed: Bool = false;
     private let inputFieldNode: ShareInputFieldNode
     private let actionSeparatorNode: ASDisplayNode
     
@@ -155,6 +157,11 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         self.actionButtonNode.titleNode.displaysAsynchronously = false
         self.actionButtonNode.setBackgroundImage(highlightedHalfRoundedBackground, for: .highlighted)
         
+        self.dropNameButtonNode = ShareActionButtonNode(badgeBackgroundColor: self.presentationData.theme.actionSheet.controlAccentColor, badgeTextColor: self.presentationData.theme.actionSheet.opaqueItemBackgroundColor)
+        self.dropNameButtonNode.displaysAsynchronously = false
+        self.dropNameButtonNode.titleNode.displaysAsynchronously = false
+        self.dropNameButtonNode.setBackgroundImage(highlightedHalfRoundedBackground, for: .highlighted)
+        
         self.inputFieldNode = ShareInputFieldNode(theme: ShareInputFieldNodeTheme(presentationTheme: self.presentationData.theme), placeholder: self.presentationData.strings.ShareMenu_Comment)
         self.inputFieldNode.text = presetText ?? ""
         self.inputFieldNode.preselectText()
@@ -167,6 +174,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         
         if self.defaultAction == nil {
             self.actionButtonNode.alpha = 0.0
+            self.dropNameButtonNode.alpha = 0.0
             self.actionsBackgroundNode.alpha = 0.0
             self.actionSeparatorNode.alpha = 0.0
         }
@@ -231,6 +239,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         self.cancelButtonNode.addTarget(self, action: #selector(self.cancelButtonPressed), forControlEvents: .touchUpInside)
         
         self.actionButtonNode.addTarget(self, action: #selector(self.actionButtonPressed), forControlEvents: .touchUpInside)
+        self.dropNameButtonNode.addTarget(self, action: #selector(self.actionButtonPressed), forControlEvents: .touchUpInside)
         
         self.wrappingScrollNode.addSubnode(self.contentBackgroundNode)
         
@@ -238,6 +247,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         self.contentContainerNode.addSubnode(self.actionSeparatorNode)
         self.contentContainerNode.addSubnode(self.actionsBackgroundNode)
         self.contentContainerNode.addSubnode(self.inputFieldNode)
+        self.contentContainerNode.addSubnode(self.dropNameButtonNode)
         self.contentContainerNode.addSubnode(self.actionButtonNode)
         
         self.inputFieldNode.updateHeight = { [weak self] in
@@ -300,11 +310,14 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         self.contentBackgroundNode.image = roundedBackground
         self.actionsBackgroundNode.image = halfRoundedBackground
         self.actionButtonNode.setBackgroundImage(highlightedHalfRoundedBackground, for: .highlighted)
+        self.dropNameButtonNode.setBackgroundImage(highlightedHalfRoundedBackground, for: .highlighted)
         self.actionSeparatorNode.backgroundColor = presentationData.theme.actionSheet.opaqueItemSeparatorColor
         self.cancelButtonNode.setTitle(presentationData.strings.Common_Cancel, with: Font.medium(20.0), with: presentationData.theme.actionSheet.standardActionTextColor, for: .normal)
         
         self.actionButtonNode.badgeBackgroundColor = presentationData.theme.actionSheet.controlAccentColor
         self.actionButtonNode.badgeTextColor = presentationData.theme.actionSheet.opaqueItemBackgroundColor
+        self.dropNameButtonNode.badgeBackgroundColor = presentationData.theme.actionSheet.controlAccentColor
+        self.dropNameButtonNode.badgeTextColor = presentationData.theme.actionSheet.opaqueItemBackgroundColor
     }
     
     func setActionNodesHidden(_ hidden: Bool, inputField: Bool = false, actions: Bool = false, animated: Bool = true) {
@@ -329,7 +342,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
             actionNodes.append(self.inputFieldNode)
         }
         if actions {
-            actionNodes.append(contentsOf: [self.actionsBackgroundNode, self.actionButtonNode, self.actionSeparatorNode])
+            actionNodes.append(contentsOf: [self.actionsBackgroundNode, self.actionButtonNode, self.dropNameButtonNode, self.actionSeparatorNode])
         }
         updateActionNodesAlpha(actionNodes, alpha: hidden ? 0.0 : 1.0)
     }
@@ -462,7 +475,10 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         
         transition.updateFrame(node: self.actionsBackgroundNode, frame: CGRect(origin: CGPoint(x: 0.0, y: contentContainerFrame.size.height - bottomGridInset), size: CGSize(width: contentContainerFrame.size.width, height: bottomGridInset)), beginWithCurrentState: true)
         
-        transition.updateFrame(node: self.actionButtonNode, frame: CGRect(origin: CGPoint(x: 0.0, y: contentContainerFrame.size.height - actionButtonHeight), size: CGSize(width: contentContainerFrame.size.width, height: buttonHeight)))
+        let actionW = contentContainerFrame.size.width / (dropNameShowed ? 2.0 : 1.0)
+        let dropW = contentContainerFrame.size.width * (dropNameShowed ? 0.5 : 0.0)
+        transition.updateFrame(node: self.actionButtonNode, frame: CGRect(origin: CGPoint(x: 0.0, y: contentContainerFrame.size.height - actionButtonHeight), size: CGSize(width: actionW, height: buttonHeight)))
+        transition.updateFrame(node: self.dropNameButtonNode, frame: CGRect(origin: CGPoint(x: actionW, y: contentContainerFrame.size.height - actionButtonHeight), size: CGSize(width: dropW, height: buttonHeight)))
         
         transition.updateFrame(node: self.inputFieldNode, frame: CGRect(origin: CGPoint(x: 0.0, y: contentContainerFrame.size.height - bottomGridInset), size: CGSize(width: contentContainerFrame.size.width, height: inputHeight)), beginWithCurrentState: true)
         
@@ -560,6 +576,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
             transition = .immediate
         }
         transition.updateAlpha(node: self.actionButtonNode, alpha: 0.0)
+        transition.updateAlpha(node: self.dropNameButtonNode, alpha: 0.0)
         transition.updateAlpha(node: self.inputFieldNode, alpha: 0.0)
         transition.updateAlpha(node: self.actionSeparatorNode, alpha: 0.0)
         transition.updateAlpha(node: self.actionsBackgroundNode, alpha: 0.0)
@@ -771,6 +788,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
                             strongSelf.inputFieldNode.deactivateInput()
                             let transition = ContainedViewLayoutTransition.animated(duration: 0.12, curve: .easeInOut)
                             transition.updateAlpha(node: strongSelf.actionButtonNode, alpha: 0.0)
+                            transition.updateAlpha(node: strongSelf.dropNameButtonNode, alpha: 0.0)
                             transition.updateAlpha(node: strongSelf.inputFieldNode, alpha: 0.0)
                             transition.updateAlpha(node: strongSelf.actionSeparatorNode, alpha: 0.0)
                             transition.updateAlpha(node: strongSelf.actionsBackgroundNode, alpha: 0.0)
@@ -821,6 +839,9 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if let result = self.actionButtonNode.hitTest(self.actionButtonNode.convert(point, from: self), with: event) {
+            return result
+        }
+        if let result = self.dropNameButtonNode.hitTest(self.dropNameButtonNode.convert(point, from: self), with: event) {
             return result
         }
         if self.bounds.contains(point) {
@@ -900,12 +921,17 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
             self.actionButtonNode.setTitle(text, with: Font.medium(20.0), with: self.presentationData.theme.actionSheet.standardActionTextColor, for: .normal)
             self.actionButtonNode.badge = "\(self.controllerInteraction!.selectedPeers.count)"
         }
+        dropNameShowed = (self.actionButtonNode.badge != nil)
+        self.dropNameButtonNode.isEnabled = self.actionButtonNode.isEnabled
+        self.dropNameButtonNode.setTitle("No Text", with: Font.medium(20.0), with: self.presentationData.theme.actionSheet.standardActionTextColor, for: .normal)
+        self.dropNameButtonNode.badge = nil
     }
     
     func transitionToProgress(signal: Signal<Void, NoError>) {
         self.inputFieldNode.deactivateInput()
         let transition = ContainedViewLayoutTransition.animated(duration: 0.12, curve: .easeInOut)
         transition.updateAlpha(node: self.actionButtonNode, alpha: 0.0)
+        transition.updateAlpha(node: self.dropNameButtonNode, alpha: 0.0)
         transition.updateAlpha(node: self.inputFieldNode, alpha: 0.0)
         transition.updateAlpha(node: self.actionSeparatorNode, alpha: 0.0)
         transition.updateAlpha(node: self.actionsBackgroundNode, alpha: 0.0)
@@ -942,6 +968,7 @@ final class ShareControllerNode: ViewControllerTracingNode, UIScrollViewDelegate
         } else {
             let transition = ContainedViewLayoutTransition.animated(duration: 0.12, curve: .easeInOut)
             transition.updateAlpha(node: self.actionButtonNode, alpha: 0.0)
+            transition.updateAlpha(node: self.dropNameButtonNode, alpha: 0.0)
             transition.updateAlpha(node: self.inputFieldNode, alpha: 0.0)
             transition.updateAlpha(node: self.actionSeparatorNode, alpha: 0.0)
             transition.updateAlpha(node: self.actionsBackgroundNode, alpha: 0.0)
