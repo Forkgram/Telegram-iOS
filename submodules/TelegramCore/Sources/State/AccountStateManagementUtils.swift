@@ -3333,7 +3333,7 @@ func replayFinalState(accountManager: AccountManager<TelegramAccountManagerTypes
             return $0.0 < $1.0
         }).map({ $0.1 })
         for file in stickerFiles {
-            transaction.addOrMoveToFirstPositionOrderedItemListItem(collectionId: Namespaces.OrderedItemList.CloudRecentStickers, item: OrderedItemListEntry(id: RecentMediaItemId(file.fileId).rawValue, contents: RecentMediaItem(file)), removeTailIfCountExceeds: 20)
+            transaction.addOrMoveToFirstPositionOrderedItemListItem(collectionId: Namespaces.OrderedItemList.CloudRecentStickers, item: OrderedItemListEntry(id: RecentMediaItemId(file.fileId).rawValue, contents: RecentMediaItem(file)), removeTailIfCountExceeds: LimitsConfiguration.kMaxRecentStickers)
         }
     }
     

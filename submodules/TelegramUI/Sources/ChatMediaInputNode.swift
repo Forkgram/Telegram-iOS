@@ -291,7 +291,7 @@ func chatMediaInputGridEntries(view: ItemCollectionsView, savedStickers: Ordered
             let packInfo = StickerPackCollectionInfo(id: ItemCollectionId(namespace: ChatMediaInputPanelAuxiliaryNamespace.recentStickers.rawValue, id: 0), flags: [], accessHash: 0, title: strings.Stickers_FrequentlyUsed.uppercased(), shortName: "", thumbnail: nil, immediateThumbnailData: nil, hash: 0, count: 0)
             var addedCount = 0
             for i in 0 ..< recentStickers.items.count {
-                if addedCount >= 20 {
+                if addedCount >= LimitsConfiguration.kMaxRecentStickers {
                     break
                 }
                 if let item = recentStickers.items[i].contents as? RecentMediaItem, let file = item.media as? TelegramMediaFile, let mediaId = item.media.id {

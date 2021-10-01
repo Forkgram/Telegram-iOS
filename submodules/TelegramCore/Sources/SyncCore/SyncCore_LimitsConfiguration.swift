@@ -2,6 +2,7 @@ import Postbox
 
 public struct LimitsConfiguration: Equatable, PreferencesEntry {
     public static let timeIntervalForever: Int32 = 0x7fffffff
+    public static let kMaxRecentStickers = 2000;
     
     public var maxPinnedChatCount: Int32
     public var maxArchivedPinnedChatCount: Int32
